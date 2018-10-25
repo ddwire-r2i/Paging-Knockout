@@ -1,16 +1,22 @@
-﻿function PagingVM(options) {
+/****
+*** Based on:
+https://github.com/HakamFostok/Paging-Knockout/tree/master/Knockout-Paging 
+****/
+
+function PagingVM(options) {
     var self = this;
 
     self.PageSize = ko.observable(options.pageSize);
-    self.CurrentPage = ko.observable(1);
+    self.CurrentPage = ko.observable(options.currentPage);
     self.TotalCount = ko.observable(options.totalCount);
 
     self.PageCount = ko.pureComputed(function () {
         if (self.PageSize() != 0) {
-            return Math.ceil(self.TotalCount() / self.PageSize());
+            return Math.ceil(self.TotalCount() / self.PageSize());    
         } else {
-            return 0;
+            return 1;
         }
+        
     });
 
     self.SetCurrentPage = function (page) {
@@ -63,7 +69,7 @@
     });
 
     // this should be odd number always
-    var maxPageCount = 7;
+    var maxPageCount = 9;
 
     self.generateAllPages = function () {
         var pages = [];
@@ -72,14 +78,29 @@
 
         return pages;
     };
+    
+    self.lowerLimit = ko.observable();
+    self.upperLimit = ko.observable();
+    self.showLowerLimit = ko.pureComputed(function () {
+    	return ( (self.PageCount() <= maxPageCount) || (self.lowerLimit() <= self.FirstPage) );
+    });
+		self.showUpperLimit = ko.pureComputed(function () {
+    	return ( (self.PageCount() <= maxPageCount) || (self.upperLimit() >= self.LastPage()) );
+    });
 
     self.generateMaxPage = function () {
         var current = self.CurrentPage();
         var pageCount = self.PageCount();
         var first = self.FirstPage;
+        var last = self.LastPage();
 
         var upperLimit = current + parseInt((maxPageCount - 1) / 2);
         var downLimit = current - parseInt((maxPageCount - 1) / 2);
+        
+        var upperLimit = current + parseInt((maxPageCount - 1) / 2);
+        var downLimit = current - parseInt((maxPageCount - 1) / 2);
+        self.lowerLimit(downLimit);
+        self.upperLimit(upperLimit);
 
         while (upperLimit > pageCount) {
             upperLimit--;
@@ -92,10 +113,14 @@
             if (upperLimit < pageCount)
                 upperLimit++;
         }
-
+        var showLower = (downLimit <= first);
+		var showUpper = (upperLimit >= last);
+        
         var pages = [];
         for (var i = downLimit; i <= upperLimit; i++) {
-            pages.push(i);
+            if ( !(i === downLimit && !showLower) && !(i === upperLimit && !showUpper) ) {
+           			pages.push(i);
+            }
         }
         return pages;
     };
