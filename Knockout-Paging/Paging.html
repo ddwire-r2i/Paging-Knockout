@@ -1,21 +1,52 @@
-﻿<ul data-bind="visible: NeedPaging" class="flip pull-right pagination pagination-sm">
-    <li data-bind="css: { disabled: !FirstPageActive() }">
-        <a data-bind="click: GoToFirst">First</a>
-    </li>
-    <li data-bind="css: { disabled: !PreviousPageActive() }">
-        <a data-bind="click: GoToPrevious">Previous</a>
-    </li>
-
-    <!-- ko foreach: GetPages() -->
-    <li data-bind="css: { active: $parent.CurrentPage() === $data }">
-        <a data-bind="click: $parent.GoToPage, text: $data"></a>
-    </li>
+<div class="pagination">
+    <!-- ko with:Paging() -->
+    <ul data-bind="visible: NeedPaging">
+        <li class="hidden-xs"
+            data-bind="visible: PreviousPageActive()">
+            <a data-bind="click: $root.PaginateGoToPrevious"
+               href="#">&lsaquo; Previous</a>
+        </li>
+        <!-- ko if: !showLowerLimit() -->
+        <li>
+            <a href="#"
+               data-bind="click: function(data, event){ $root.PaginateGoToPage(FirstPage,event)}, text: FirstPage"></a>
+        </li>
+        <li>&hellip;</li>
+        <!-- /ko -->
+        <!-- ko foreach: GetPages() -->
+        <li data-bind="css: { active: $parent.CurrentPage() === $data }">
+            <a href="#" data-bind="click: $root.PaginateGoToPage, text: $data"></a>
+        </li>
+        <!-- /ko -->
+        <!-- ko if: !showUpperLimit() -->
+        <li>&hellip;</li>
+        <li>
+            <a href="#"
+               data-bind="click: function(data, event){ $root.PaginateGoToPage($root.paginationTotal(),event)}, text: $root.paginationTotal()"></a>
+        </li>
+        <!-- /ko -->
+        <li class="hidden-xs"
+            data-bind="visible: NextPageActive()">
+            <a data-bind="click: $root.PaginateGoToNext"
+               href="#">Next &rsaquo;</a>
+        </li>
+        <li class="hidden-xs">|</li>
+        <li class="hidden-xs"><a href="#"
+               data-bind="click: $root.PaginateViewAll">View All</a></li>
+    </ul><br data-bind="visible: NeedPaging"
+             class="hidden-sm hidden-md hidden-lg">
+    <ul data-bind="visible: NeedPaging"
+        class="hidden-sm hidden-md hidden-lg mobile-pagination">
+        <li data-bind="visible: PreviousPageActive()" class="prev">
+            <a data-bind="click: $root.PaginateGoToPrevious"
+               href="#">&lsaquo; Previous</a>
+        </li>
+        <li data-bind="visible: NextPageActive()" class="next">
+            <a data-bind="click: $root.PaginateGoToNext"
+               href="#">Next &rsaquo;</a>
+        </li>
+        <li><a href="#"
+               data-bind="click: $root.PaginateViewAll">View All</a></li>
+    </ul>
     <!-- /ko -->
-
-    <li data-bind="css: { disabled: !NextPageActive() }">
-        <a data-bind="click: GoToNext">Next</a>
-    </li>
-    <li data-bind="css: { disabled: !LastPageActive() }">
-        <a data-bind="click: GoToLast">Last</a>
-    </li>
-</ul>
+</div>
